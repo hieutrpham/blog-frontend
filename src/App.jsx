@@ -9,6 +9,9 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPass] = useState('')
   const [user, setUser] = useState(null)
+  const [title, setTitle] = useState('')
+  const [author, setAuthor] = useState('')
+  const [url, setUrl] = useState('')
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -21,6 +24,7 @@ const App = () => {
     if (loggedUser) {
       const user = JSON.parse(loggedUser)
       setUser(user)
+      blogService.setToken(user.token)
     }
   },[])
 
@@ -31,6 +35,7 @@ const App = () => {
       const user = await login({username, password})
 
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
+      blogService.setToken(user.token)
 
       setUser(user)
       setUsername('')
@@ -54,7 +59,20 @@ const App = () => {
   const handleLogout =() => {
     window.localStorage.clear()
     setUser(null)
-    console.log(user)    
+  }
+
+  const handleCreate = async (event) => {
+    event.preventDefault()
+    const blog = {
+      "title": title,
+      "author": author,
+      "url": url
+    }
+    const newBlog = await blogService.create(blog)
+    setBlogs(blogs.concat(newBlog))
+    setAuthor('')
+    setTitle('')
+    setUrl('')
   }
 
   if (user === null) {
@@ -73,11 +91,15 @@ const App = () => {
       <p>{user.name} logged in
         <button type='button' onClick={handleLogout}>log out</button>
       </p>
-      
-      
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+
+      <h2>Create New</h2>
+      title: <input value={title} onChange={({target}) => setTitle(target.value)}/> <br/>
+      author: <input value={author} onChange={({target}) => setAuthor(target.value)}/> <br/>
+      url: <input value={url} onChange={({target}) => setUrl(target.value)}/> <br/>
+      <button type='button' onClick={handleCreate}>create</button>
+
+      {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
+
     </>
   )
 }
