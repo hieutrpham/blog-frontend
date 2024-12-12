@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import Login from './components/Login'
 import login from './services/login'
 import blogService from './services/blogs'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,6 +13,7 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -40,10 +42,14 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPass('')
+      setMessage('login successful')
 
     } catch(exception) {
       console.log(exception)
-      
+      setMessage('invalid username or password')
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000);
     }
 
   }
@@ -68,16 +74,30 @@ const App = () => {
       "author": author,
       "url": url
     }
-    const newBlog = await blogService.create(blog)
-    setBlogs(blogs.concat(newBlog))
-    setAuthor('')
-    setTitle('')
-    setUrl('')
+    try {
+      const newBlog = await blogService.create(blog)
+      setBlogs(blogs.concat(newBlog))
+      setAuthor('')
+      setTitle('')
+      setUrl('')
+      setMessage('blog created')
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000);
+    } catch(exception) {
+      console.log(exception)
+      setMessage(exception)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000);
+    }
+
   }
 
   if (user === null) {
     return (
       <>
+        <Notification message={message}/>
         <h2>Log in to application</h2>
         <Login handleLogin={handleLogin} username={username}
         password={password} handleUser={handleUser} handlePass={handlePass}/>
@@ -87,6 +107,7 @@ const App = () => {
 
   return (
     <>
+      <Notification message={message}/>
       <h2>Blogs</h2>
       <p>{user.name} logged in
         <button type='button' onClick={handleLogout}>log out</button>
