@@ -2,18 +2,22 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import Login from './components/Login'
 import login from './services/login'
+import Blogform from './components/Blogform'
 import blogService from './services/blogs'
 import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPass] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [message, setMessage] = useState(null)
+
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    title: '',
+    author: '',
+    url: ''
+  })
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -30,18 +34,41 @@ const App = () => {
     }
   },[])
 
+
+
+  const handleInput = (event) => {
+    const {name, value} = event.target
+    
+    setFormData((prevData) => ({
+      ...prevData,
+      [name] : value
+    }))
+  }
+
   const handleLogin = async (event) => {
     event.preventDefault()
 
     try {
+      const username = formData.username
+      const password = formData.password
+
+      console.log(typeof username, typeof password)
+      
+
       const user = await login({username, password})
+
+      console.log(user)
+      
 
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       blogService.setToken(user.token)
 
       setUser(user)
-      setUsername('')
-      setPass('')
+      setFormData((prevData) => ({
+        ...prevData,
+        username: '',
+        password: ''
+      }))
       setMessage('login successful')
 
     } catch(exception) {
@@ -51,15 +78,6 @@ const App = () => {
         setMessage(null)
       }, 5000);
     }
-
-  }
-
-  const handleUser = (event) => {
-    setUsername(event.target.value)
-  }
-
-  const handlePass = (event) => {
-    setPass(event.target.value)   
   }
 
   const handleLogout =() => {
@@ -77,9 +95,14 @@ const App = () => {
     try {
       const newBlog = await blogService.create(blog)
       setBlogs(blogs.concat(newBlog))
-      setAuthor('')
-      setTitle('')
-      setUrl('')
+
+      setFormData((prevData) => ({
+        ...prevData,
+        title: '',
+        author: '',
+        url: ''
+      }))
+
       setMessage('blog created')
       setTimeout(() => {
         setMessage(null)
@@ -99,8 +122,8 @@ const App = () => {
       <>
         <Notification message={message}/>
         <h2>Log in to application</h2>
-        <Login handleLogin={handleLogin} username={username}
-        password={password} handleUser={handleUser} handlePass={handlePass}/>
+        <Login handleLogin={handleLogin} username={formData.username}
+        password={formData.password} handleUser={handleInput} handlePass={handleInput}/>
       </>
     )
   }
@@ -113,11 +136,9 @@ const App = () => {
         <button type='button' onClick={handleLogout}>log out</button>
       </p>
 
-      <h2>Create New</h2>
-      title: <input value={title} onChange={({target}) => setTitle(target.value)}/> <br/>
-      author: <input value={author} onChange={({target}) => setAuthor(target.value)}/> <br/>
-      url: <input value={url} onChange={({target}) => setUrl(target.value)}/> <br/>
-      <button type='button' onClick={handleCreate}>create</button>
+      <Blogform title={formData.title} author={formData.author} url={formData.url}
+      handleAuthor={handleInput} handleTitle={handleInput}
+      handleUrl={handleInput} handleClick={handleCreate}/>
 
       {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
 
