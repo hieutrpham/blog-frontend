@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Login from './components/Login'
 import login from './services/login'
 import Blogform from './components/Blogform'
 import blogService from './services/blogs'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -18,6 +19,8 @@ const App = () => {
     author: '',
     url: ''
   })
+
+  const blogRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -33,8 +36,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   },[])
-
-
 
   const handleInput = (event) => {
     const {name, value} = event.target
@@ -52,13 +53,7 @@ const App = () => {
       const username = formData.username
       const password = formData.password
 
-      console.log(typeof username, typeof password)
-      
-
-      const user = await login({username, password})
-
-      console.log(user)
-      
+      const user = await login({username, password})  
 
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       blogService.setToken(user.token)
@@ -88,9 +83,9 @@ const App = () => {
   const handleCreate = async (event) => {
     event.preventDefault()
     const blog = {
-      "title": title,
-      "author": author,
-      "url": url
+      "title": formData.title,
+      "author": formData.author,
+      "url": formData.url
     }
     try {
       const newBlog = await blogService.create(blog)
@@ -104,9 +99,13 @@ const App = () => {
       }))
 
       setMessage('blog created')
+    
       setTimeout(() => {
         setMessage(null)
       }, 5000);
+
+      blogRef.current.toggleVisibility()
+      
     } catch(exception) {
       console.log(exception)
       setMessage(exception)
@@ -117,10 +116,9 @@ const App = () => {
 
   }
 
-  if (user === null) {
+  const loginForm = () => {
     return (
       <>
-        <Notification message={message}/>
         <h2>Log in to application</h2>
         <Login handleLogin={handleLogin} username={formData.username}
         password={formData.password} handleUser={handleInput} handlePass={handleInput}/>
@@ -128,20 +126,27 @@ const App = () => {
     )
   }
 
+  const blogForm = () => {
+    return (
+      <>
+        <h2>Blogs</h2>
+        <p>{user.name} logged in
+          <button type='button' onClick={handleLogout}>log out</button>
+        </p>
+        <Togglable buttonLabel='create blog' ref={blogRef}>
+          <Blogform title={formData.title} author={formData.author} url={formData.url}
+          handleAuthor={handleInput} handleTitle={handleInput}
+          handleUrl={handleInput} handleClick={handleCreate}/>
+        </Togglable>
+        {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
+      </>
+    )}
+
   return (
     <>
       <Notification message={message}/>
-      <h2>Blogs</h2>
-      <p>{user.name} logged in
-        <button type='button' onClick={handleLogout}>log out</button>
-      </p>
 
-      <Blogform title={formData.title} author={formData.author} url={formData.url}
-      handleAuthor={handleInput} handleTitle={handleInput}
-      handleUrl={handleInput} handleClick={handleCreate}/>
-
-      {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
-
+      {user === null ? loginForm() : blogForm()}
     </>
   )
 }
