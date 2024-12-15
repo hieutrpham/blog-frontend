@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Login from './components/Login'
-import login from './services/login'
-import Blogform from './components/Blogform'
-import blogService from './services/blogs'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
+import Blogform from './components/Blogform'
+
+import blogService from './services/blogs'
+import login from './services/login'
+
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -15,9 +17,6 @@ const App = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    title: '',
-    author: '',
-    url: ''
   })
 
   const blogRef = useRef()
@@ -65,6 +64,9 @@ const App = () => {
         password: ''
       }))
       setMessage('login successful')
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000);
 
     } catch(exception) {
       console.log(exception)
@@ -80,23 +82,11 @@ const App = () => {
     setUser(null)
   }
 
-  const handleCreate = async (event) => {
-    event.preventDefault()
-    const blog = {
-      "title": formData.title,
-      "author": formData.author,
-      "url": formData.url
-    }
-    try {
-      const newBlog = await blogService.create(blog)
-      setBlogs(blogs.concat(newBlog))
+  const createBlog = async (blogObject) => {
 
-      setFormData((prevData) => ({
-        ...prevData,
-        title: '',
-        author: '',
-        url: ''
-      }))
+    try {
+      const newBlog = await blogService.create(blogObject)
+      setBlogs(blogs.concat(newBlog))
 
       setMessage('blog created')
     
@@ -105,9 +95,8 @@ const App = () => {
       }, 5000);
 
       blogRef.current.toggleVisibility()
-      
+
     } catch(exception) {
-      console.log(exception)
       setMessage(exception)
       setTimeout(() => {
         setMessage(null)
@@ -134,9 +123,7 @@ const App = () => {
           <button type='button' onClick={handleLogout}>log out</button>
         </p>
         <Togglable buttonLabel='create blog' ref={blogRef}>
-          <Blogform title={formData.title} author={formData.author} url={formData.url}
-          handleAuthor={handleInput} handleTitle={handleInput}
-          handleUrl={handleInput} handleClick={handleCreate}/>
+          <Blogform createBlog={createBlog}/>
         </Togglable>
         {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
       </>
