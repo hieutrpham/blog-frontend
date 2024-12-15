@@ -8,16 +8,10 @@ import Blogform from './components/Blogform'
 import blogService from './services/blogs'
 import login from './services/login'
 
-
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [message, setMessage] = useState(null)
-
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-  })
 
   const blogRef = useRef()
 
@@ -36,33 +30,16 @@ const App = () => {
     }
   },[])
 
-  const handleInput = (event) => {
-    const {name, value} = event.target
+  const handleLogin = async (loginCred) => {
     
-    setFormData((prevData) => ({
-      ...prevData,
-      [name] : value
-    }))
-  }
-
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
     try {
-      const username = formData.username
-      const password = formData.password
-
-      const user = await login({username, password})  
+      const user = await login(loginCred)  
 
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       blogService.setToken(user.token)
 
       setUser(user)
-      setFormData((prevData) => ({
-        ...prevData,
-        username: '',
-        password: ''
-      }))
+
       setMessage('login successful')
       setTimeout(() => {
         setMessage(null)
@@ -109,8 +86,7 @@ const App = () => {
     return (
       <>
         <h2>Log in to application</h2>
-        <Login handleLogin={handleLogin} username={formData.username}
-        password={formData.password} handleUser={handleInput} handlePass={handleInput}/>
+        <Login handleLogin={handleLogin}/>
       </>
     )
   }
