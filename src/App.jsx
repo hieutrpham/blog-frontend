@@ -18,7 +18,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )     
   }, [])
 
   useEffect(() => {
@@ -101,6 +101,7 @@ const App = () => {
         <Togglable buttonLabel='create blog' ref={blogRef}>
           <Blogform createBlog={createBlog}/>
         </Togglable>
+        
         {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
       </>
     )}
