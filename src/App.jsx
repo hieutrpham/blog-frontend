@@ -30,6 +30,8 @@ const App = () => {
     }
   },[])
 
+  console.log(blogs)
+  
   const handleLogin = async (loginCred) => {
     
     try {
@@ -102,7 +104,7 @@ const App = () => {
           <Blogform createBlog={createBlog}/>
         </Togglable>
         
-        {blogs.map(blog =><Blog key={blog.id} blog={blog} />)}
+        {blogs.map(blog =><Blog key={blog.id} blog={blog} />).sort()}
       </>
     )}
 
