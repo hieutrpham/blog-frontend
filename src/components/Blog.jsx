@@ -17,7 +17,7 @@ const Blog = ({ blog }) => {
 
   const handleClick = async () => {
     const likeBlog =  {
-      userId: blog.userId.id,
+      userId: blog.userId?.id,
       likes: !blog.likes ? 1 : blog.likes += 1,
       author: blog.author,
       title: blog.title,
@@ -25,8 +25,13 @@ const Blog = ({ blog }) => {
     }
 
     setLikes(likeBlog.likes)
-
     await blogService.update(blog.id, likeBlog)
+  }
+
+  const handleDelete = () => {
+    if (window.confirm('do you want to delete this blog?')){
+      blogService.remove(blog.id)
+    }
   }
 
   return (
@@ -45,6 +50,10 @@ const Blog = ({ blog }) => {
       <button onClick={handleClick}>like</button>
       <br/>
       {blog.userId?.name}
+      <br/>
+      {blog?.userId?.username === JSON.parse(localStorage.getItem('loggedUser'))?.username ?
+      <button style={{color: 'red'}} onClick={handleDelete}>delete</button> : null}
+      <br/>
       <button onClick={() => setVisible(!visible)}>cancel</button>
     </div>
   </div>  

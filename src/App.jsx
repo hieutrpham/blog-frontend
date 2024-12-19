@@ -30,8 +30,6 @@ const App = () => {
     }
   },[])
 
-  console.log(blogs)
-  
   const handleLogin = async (loginCred) => {
     
     try {
