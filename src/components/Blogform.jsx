@@ -33,8 +33,6 @@ const Blogform = ({ createBlog }) => {
       author: "",
       url: "",
     }));
-
-    dispatch(actionNoti("you created a blog", 3000));
   };
 
   return (

@@ -5,22 +5,19 @@ import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import Blogform from "./components/Blogform";
 
-import { actionNoti, resetNoti } from "./reducers/notificationReducer";
+import { actionNoti } from "./reducers/notificationReducer";
 import { useDispatch } from "react-redux";
+import { useBlogListQuery } from "./reducers/blogReducer";
 
 import blogService from "./services/blogs";
 import login from "./services/login";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  const { data: blogData = [] } = useBlogListQuery();
   const [user, setUser] = useState(null);
   const dispatch = useDispatch();
 
   const blogRef = useRef();
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem("loggedUser");
@@ -41,15 +38,9 @@ const App = () => {
       setUser(user);
 
       dispatch(actionNoti("login successful", 3000));
-      setTimeout(() => {
-        dispatch(resetNoti());
-      }, 5000);
     } catch (exception) {
       console.log(exception);
       dispatch(actionNoti("invalid username or password", 3000));
-      setTimeout(() => {
-        dispatch(resetNoti());
-      }, 5000);
     }
   };
 
@@ -63,18 +54,11 @@ const App = () => {
       const newBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(newBlog));
 
-      dispatch(actionNoti("blog created"));
-
-      setTimeout(() => {
-        dispatch(resetNoti(null));
-      }, 5000);
+      dispatch(actionNoti("blog created", 3000));
 
       blogRef.current.toggleVisibility();
     } catch (exception) {
       dispatch(actionNoti(exception));
-      setTimeout(() => {
-        dispatch(resetNoti(null));
-      }, 5000);
     }
   };
 
@@ -88,7 +72,7 @@ const App = () => {
   };
 
   const blogForm = () => {
-    const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes);
+    const sortedBlogs = [...blogData].sort((a, b) => b.likes - a.likes);
 
     return (
       <>
