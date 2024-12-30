@@ -1,15 +1,16 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useCreateBlogMutation } from "../reducers/blogReducer";
 import { actionNoti } from "../reducers/notificationReducer";
+import { useDispatch } from "react-redux";
 
-const Blogform = ({ createBlog }) => {
-  const dispatch = useDispatch();
-
+const Blogform = () => {
+  const [createBlog] = useCreateBlogMutation();
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     url: "",
   });
+  const dispatch = useDispatch();
 
   const handleInput = (event) => {
     const { name, value } = event.target;
@@ -26,6 +27,8 @@ const Blogform = ({ createBlog }) => {
       author: formData.author,
       url: formData.url,
     });
+
+    dispatch(actionNoti("blog created", 3000));
 
     setFormData((prevData) => ({
       ...prevData,

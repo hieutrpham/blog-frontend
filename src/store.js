@@ -11,6 +11,6 @@ const store = configureStore({
 });
 
 const state = store.getState();
-console.log(state.blogApi);
+// console.log(state.blogApi);
 
 export default store;

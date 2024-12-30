@@ -8,8 +8,8 @@ import Blogform from "./components/Blogform";
 import { actionNoti } from "./reducers/notificationReducer";
 import { useDispatch } from "react-redux";
 import { useBlogListQuery } from "./reducers/blogReducer";
+import { setToken } from "./reducers/blogReducer";
 
-import blogService from "./services/blogs";
 import login from "./services/login";
 
 const App = () => {
@@ -24,7 +24,7 @@ const App = () => {
     if (loggedUser) {
       const user = JSON.parse(loggedUser);
       setUser(user);
-      blogService.setToken(user.token);
+      setToken(user.token);
     }
   }, []);
 
@@ -33,7 +33,7 @@ const App = () => {
       const user = await login(loginCred);
 
       window.localStorage.setItem("loggedUser", JSON.stringify(user));
-      blogService.setToken(user.token);
+      setToken(user.token);
 
       setUser(user);
 
@@ -47,19 +47,6 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.clear();
     setUser(null);
-  };
-
-  const createBlog = async (blogObject) => {
-    try {
-      const newBlog = await blogService.create(blogObject);
-      setBlogs(blogs.concat(newBlog));
-
-      dispatch(actionNoti("blog created", 3000));
-
-      blogRef.current.toggleVisibility();
-    } catch (exception) {
-      dispatch(actionNoti(exception));
-    }
   };
 
   const loginForm = () => {
@@ -84,7 +71,7 @@ const App = () => {
           </button>
         </p>
         <Togglable buttonLabel="create blog" ref={blogRef}>
-          <Blogform createBlog={createBlog} />
+          <Blogform />
         </Togglable>
 
         {sortedBlogs.map((blog) => (
