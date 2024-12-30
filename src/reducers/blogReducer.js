@@ -19,7 +19,17 @@ export const blogApi = createApi({
     blogList: build.query({
       query: () => ({ url: "/", headers: getAuthConfig().headers }),
       providesTags: (result) =>
-        result ? result.map(({ id }) => ({ type: "Blogs", id })) : [],
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Blogs", id })),
+              { type: "Blogs", id: "LIST" },
+            ]
+          : [],
+    }),
+
+    getBlog: build.query({
+      query: (id) => `/${id}`,
+      providesTags: (result, error, id) => [{ type: "Blogs", id }],
     }),
 
     createBlog: build.mutation({
@@ -32,9 +42,39 @@ export const blogApi = createApi({
           body: newBlog,
         };
       },
-      invalidatesTags: ["Blogs"],
+      invalidatesTags: [{ type: "Blogs", id: "LIST" }],
+    }),
+
+    updateBlog: build.mutation({
+      query(newBlog) {
+        const { id, ...body } = newBlog;
+        return {
+          url: `${id}`,
+          headers: getAuthConfig().headers,
+          method: "PUT",
+          body,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: "Blogs", id }],
+    }),
+
+    deleteBlog: build.mutation({
+      query(id) {
+        return {
+          url: `${id}`,
+          headers: getAuthConfig().headers,
+          method: "DELETE",
+        };
+      },
+      invalidatesTags: (result, error, id) => [{ type: "Blogs", id }],
     }),
   }),
 });
 
-export const { useBlogListQuery, useCreateBlogMutation } = blogApi;
+export const {
+  useBlogListQuery,
+  useGetBlogQuery,
+  useCreateBlogMutation,
+  useUpdateBlogMutation,
+  useDeleteBlogMutation,
+} = blogApi;

@@ -1,9 +1,15 @@
 import { useState } from "react";
-import blogService from "../services/blogs";
+import {
+  useUpdateBlogMutation,
+  useDeleteBlogMutation,
+} from "../reducers/blogReducer";
 
 const Blog = ({ blog }) => {
   const [likes, setLikes] = useState(blog.likes);
   const [visible, setVisible] = useState(false);
+  const [updateBlog] = useUpdateBlogMutation();
+  const [removeBlog] = useDeleteBlogMutation();
+
   const hideWhenVisible = { display: visible ? "none" : "" };
   const showWhenVisible = { display: visible ? "" : "none" };
 
@@ -16,23 +22,22 @@ const Blog = ({ blog }) => {
   };
 
   const handleLikeClick = async () => {
-    console.log(typeof blog.likes);
-
     const likeBlog = {
       userId: blog.userId?.id,
-      likes: !blog.likes ? 1 : (blog.likes += 1),
+      likes: !blog.likes ? 1 : blog.likes + 1,
       author: blog.author,
       title: blog.title,
       url: blog.url,
+      id: blog.id,
     };
 
     setLikes(likeBlog.likes);
-    await blogService.update(blog.id, likeBlog);
+    await updateBlog(likeBlog);
   };
 
   const handleDelete = () => {
     if (window.confirm("do you want to delete this blog?")) {
-      blogService.remove(blog.id);
+      removeBlog(blog.id);
     }
   };
 
