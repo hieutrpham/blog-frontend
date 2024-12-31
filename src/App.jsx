@@ -1,59 +1,36 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Login from "./components/Login";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import Blogform from "./components/Blogform";
 
-import { actionNoti } from "./reducers/notificationReducer";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useBlogListQuery } from "./reducers/blogReducer";
-import { setToken } from "./reducers/blogReducer";
+import { setCredentials } from "./reducers/authReducer";
 
-import login from "./services/login";
+import { logout } from "./reducers/authReducer";
 
 const App = () => {
   const { data: blogData = [] } = useBlogListQuery();
-  const [user, setUser] = useState(null);
+  const userData = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const blogRef = useRef();
 
   useEffect(() => {
-    const loggedUser = window.localStorage.getItem("loggedUser");
+    const loggedUser = localStorage.getItem("loggedUser");
     if (loggedUser) {
       const user = JSON.parse(loggedUser);
-      setUser(user);
-      setToken(user.token);
+      dispatch(setCredentials(user));
     }
-  }, []);
-
-  const handleLogin = async (loginCred) => {
-    try {
-      const user = await login(loginCred);
-
-      window.localStorage.setItem("loggedUser", JSON.stringify(user));
-      setToken(user.token);
-
-      setUser(user);
-
-      dispatch(actionNoti("login successful", 3000));
-    } catch (exception) {
-      console.log(exception);
-      dispatch(actionNoti("invalid username or password", 3000));
-    }
-  };
-
-  const handleLogout = () => {
-    window.localStorage.clear();
-    setUser(null);
-  };
+  }, [dispatch]);
 
   const loginForm = () => {
     return (
       <>
         <h2>Log in to application</h2>
-        <Login handleLogin={handleLogin} />
+        <Login />
       </>
     );
   };
@@ -65,8 +42,8 @@ const App = () => {
       <>
         <h2>Blogs</h2>
         <p>
-          {user.name} logged in
-          <button type="button" onClick={handleLogout}>
+          {userData.name} logged in
+          <button type="button" onClick={() => dispatch(logout())}>
             log out
           </button>
         </p>
@@ -84,8 +61,7 @@ const App = () => {
   return (
     <>
       <Notification />
-
-      {user === null ? loginForm() : blogForm()}
+      {userData.name === null ? loginForm() : blogForm()}
     </>
   );
 };
