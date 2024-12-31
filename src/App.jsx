@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Login from "./components/Login";
 import Notification from "./components/Notification";
@@ -9,18 +9,14 @@ import blogService from "./services/blogs";
 import login from "./services/login";
 
 import { useNoti, useNotiDispatch } from "./contexts/notification";
+import { useBlogContext } from "./contexts/blogs";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const notiDispatch = useNotiDispatch();
   const noti = useNoti();
-
+  const { blogs, isLoading, isError } = useBlogContext();
   const blogRef = useRef();
-
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
 
   useEffect(() => {
     const loggedUser = window.localStorage.getItem("loggedUser");
@@ -30,6 +26,13 @@ const App = () => {
       blogService.setToken(user.token);
     }
   }, []);
+
+  if (isLoading) {
+    return "loading...";
+  }
+  if (isError) {
+    return "error";
+  }
 
   const handleLogin = async (loginCred) => {
     try {
@@ -49,17 +52,6 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.clear();
     setUser(null);
-  };
-
-  const createBlog = async (blogObject) => {
-    try {
-      const newBlog = await blogService.create(blogObject);
-      setBlogs(blogs.concat(newBlog));
-      notiDispatch("blog created");
-      blogRef.current.toggleVisibility();
-    } catch (exception) {
-      notiDispatch(exception);
-    }
   };
 
   const loginForm = () => {
@@ -84,7 +76,7 @@ const App = () => {
           </button>
         </p>
         <Togglable buttonLabel="create blog" ref={blogRef}>
-          <Blogform createBlog={createBlog} />
+          <Blogform />
         </Togglable>
 
         {sortedBlogs.map((blog) => (
