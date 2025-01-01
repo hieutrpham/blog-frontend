@@ -6,8 +6,6 @@ const baseUrl = "/api/blogs";
 
 const getAuth = () => {
   const token = JSON.parse(localStorage.getItem("loggedUser")).token;
-  console.log(token);
-
   return { headers: { Authorization: `Bearer ${token}` } };
 };
 

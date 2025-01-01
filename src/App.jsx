@@ -1,20 +1,17 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import Login from "./components/Login";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import Blogform from "./components/Blogform";
 
-import blogService from "./services/blogs";
-import login from "./services/login";
-
-import { useNoti, useNotiDispatch } from "./contexts/notification";
+import { useAuth } from "./contexts/auth";
+import { useNoti } from "./contexts/notification";
 import { useBlogContext } from "./contexts/blogs";
 
 const App = () => {
-  const [user, setUser] = useState(null);
-  const notiDispatch = useNotiDispatch();
   const noti = useNoti();
+  const { state: stateAuth, dispatch: dispatchAuth } = useAuth();
   const { blogs, isLoading, isError } = useBlogContext();
   const blogRef = useRef();
 
@@ -22,8 +19,14 @@ const App = () => {
     const loggedUser = window.localStorage.getItem("loggedUser");
     if (loggedUser) {
       const user = JSON.parse(loggedUser);
-      setUser(user);
-      blogService.setToken(user.token);
+      dispatchAuth({
+        type: "LOGIN",
+        payload: {
+          username: user.username,
+          name: user.name,
+          token: user.token,
+        },
+      });
     }
   }, []);
 
@@ -34,31 +37,11 @@ const App = () => {
     return "error";
   }
 
-  const handleLogin = async (loginCred) => {
-    try {
-      const user = await login(loginCred);
-
-      window.localStorage.setItem("loggedUser", JSON.stringify(user));
-      blogService.setToken(user.token);
-
-      setUser(user);
-      notiDispatch("login successful", 3000);
-    } catch (exception) {
-      console.log(exception);
-      notiDispatch("invalid username or password", 3000);
-    }
-  };
-
-  const handleLogout = () => {
-    window.localStorage.clear();
-    setUser(null);
-  };
-
   const loginForm = () => {
     return (
       <>
         <h2>Log in to application</h2>
-        <Login handleLogin={handleLogin} />
+        <Login />
       </>
     );
   };
@@ -70,8 +53,11 @@ const App = () => {
       <>
         <h2>Blogs</h2>
         <p>
-          {user.name} logged in
-          <button type="button" onClick={handleLogout}>
+          {stateAuth.name} logged in
+          <button
+            type="button"
+            onClick={() => dispatchAuth({ type: "LOGOUT" })}
+          >
             log out
           </button>
         </p>
@@ -90,7 +76,7 @@ const App = () => {
     <>
       <Notification message={noti} />
 
-      {user === null ? loginForm() : blogForm()}
+      {!stateAuth.name ? loginForm() : blogForm()}
     </>
   );
 };
