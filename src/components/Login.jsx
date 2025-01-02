@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useUserLoggedInMutation } from "../reducers/userReducer";
+import userApi from "../reducers/userReducer";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [userLoggedIn] = useUserLoggedInMutation();
+  const [userLoggedIn] = userApi.useUserLoggedInMutation();
 
   const login = async (event) => {
     event.preventDefault();

@@ -1,14 +1,14 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { setCredentials } from "./authReducer";
 
-export const userApi = createApi({
+const userApi = createApi({
   reducerPath: "userApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "/api/login" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "/api" }),
   tagTypes: ["Login"],
   endpoints: (build) => ({
     userLoggedIn: build.mutation({
       query(credentials) {
-        return { url: "/", method: "POST", body: credentials };
+        return { url: "/login", method: "POST", body: credentials };
       },
 
       async onQueryStarted(credentials, { dispatch, queryFulfilled }) {
@@ -26,7 +26,11 @@ export const userApi = createApi({
         }
       },
     }),
+
+    getUsers: build.query({
+      query: () => ({ url: "/users", method: "GET" }),
+    }),
   }),
 });
 
-export const { useUserLoggedInMutation } = userApi;
+export default userApi;

@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import notificationReducer from "./reducers/notificationReducer";
 import { blogApi } from "./reducers/blogReducer";
-import { userApi } from "./reducers/userReducer";
+import userApi from "./reducers/userReducer";
 import authReducer from "./reducers/authReducer";
 
 const store = configureStore({

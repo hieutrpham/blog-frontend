@@ -1,15 +1,19 @@
 import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import Blog from "./components/Blog";
 import Login from "./components/Login";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import Blogform from "./components/Blogform";
+import UsersView from "./views/users";
 
-import { useDispatch, useSelector } from "react-redux";
 import { useBlogListQuery } from "./reducers/blogReducer";
 import { setCredentials } from "./reducers/authReducer";
-
 import { logout } from "./reducers/authReducer";
+
+import { Routes, Route } from "react-router-dom";
+import LogOut from "./components/Logout";
 
 const App = () => {
   const { data: blogData = [] } = useBlogListQuery();
@@ -26,6 +30,8 @@ const App = () => {
     }
   }, [dispatch]);
 
+  console.log(blogData);
+
   const loginForm = () => {
     return (
       <>
@@ -40,13 +46,7 @@ const App = () => {
 
     return (
       <>
-        <h2>Blogs</h2>
-        <p>
-          {userData.name} logged in
-          <button type="button" onClick={() => dispatch(logout())}>
-            log out
-          </button>
-        </p>
+        <LogOut />
         <Togglable buttonLabel="create blog" ref={blogRef}>
           <Blogform />
         </Togglable>
@@ -61,7 +61,15 @@ const App = () => {
   return (
     <>
       <Notification />
-      {userData.name === null ? loginForm() : blogForm()}
+      <h2>Blogs</h2>
+
+      <Routes>
+        <Route
+          path="/"
+          element={userData.name === null ? loginForm() : blogForm()}
+        />
+        <Route path="/users" element={<UsersView />} />
+      </Routes>
     </>
   );
 };
