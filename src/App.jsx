@@ -10,7 +10,6 @@ import UsersView from "./views/users";
 
 import { useBlogListQuery } from "./reducers/blogReducer";
 import { setCredentials } from "./reducers/authReducer";
-import { logout } from "./reducers/authReducer";
 
 import { Routes, Route } from "react-router-dom";
 import LogOut from "./components/Logout";
@@ -29,8 +28,6 @@ const App = () => {
       dispatch(setCredentials(user));
     }
   }, [dispatch]);
-
-  console.log(blogData);
 
   const loginForm = () => {
     return (
@@ -68,7 +65,7 @@ const App = () => {
           path="/"
           element={userData.name === null ? loginForm() : blogForm()}
         />
-        <Route path="/users" element={<UsersView />} />
+        <Route path="/users/*" element={<UsersView />} />
       </Routes>
     </>
   );

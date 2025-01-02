@@ -9,7 +9,7 @@ const LogOut = () => {
 
   return (
     <>
-      {userData.name} logged in
+      {userData.username} logged in
       <button
         type="button"
         onClick={() => {
