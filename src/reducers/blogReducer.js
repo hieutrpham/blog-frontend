@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const blogApi = createApi({
+const blogApi = createApi({
   reducerPath: "blogApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "/api/blogs",
@@ -73,3 +73,5 @@ export const {
   useUpdateBlogMutation,
   useDeleteBlogMutation,
 } = blogApi;
+
+export default blogApi;

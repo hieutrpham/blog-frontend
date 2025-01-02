@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import Blog from "./components/Blog";
 import Login from "./components/Login";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
@@ -11,8 +10,9 @@ import UsersView from "./views/users";
 import { useBlogListQuery } from "./reducers/blogReducer";
 import { setCredentials } from "./reducers/authReducer";
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import LogOut from "./components/Logout";
+import BlogView from "./views/blog";
 
 const App = () => {
   const { data: blogData = [] } = useBlogListQuery();
@@ -37,10 +37,16 @@ const App = () => {
       </>
     );
   };
+  const blogStyle = {
+    paddingTop: 5,
+    paddingLeft: 2,
+    border: "solid",
+    borderWidth: 1,
+    marginBottom: 5,
+  };
 
   const blogForm = () => {
     const sortedBlogs = [...blogData].sort((a, b) => b.likes - a.likes);
-
     return (
       <>
         <LogOut />
@@ -49,7 +55,9 @@ const App = () => {
         </Togglable>
 
         {sortedBlogs.map((blog) => (
-          <Blog key={blog.id} blog={blog} />
+          <div style={blogStyle} key={blog.id}>
+            <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+          </div>
         ))}
       </>
     );
@@ -62,10 +70,11 @@ const App = () => {
 
       <Routes>
         <Route
-          path="/"
+          path="/*"
           element={userData.name === null ? loginForm() : blogForm()}
         />
         <Route path="/users/*" element={<UsersView />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </>
   );

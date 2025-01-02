@@ -54,8 +54,6 @@ const UserDetails = () => {
 };
 
 const UsersView = () => {
-  const { data: userData = [] } = userApi.useGetUsersQuery();
-
   return (
     <>
       <Routes>
