@@ -9,6 +9,10 @@ const LogOut = () => {
 
   return (
     <>
+      <a href="/">home</a>
+      <a href="/blogs">blogs</a>
+      <a href="/users">users</a>
+      <br />
       {userData.username} logged in
       <button
         type="button"

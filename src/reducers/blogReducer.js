@@ -54,6 +54,18 @@ const blogApi = createApi({
       invalidatesTags: (result, error, { id }) => [{ type: "Blogs", id }],
     }),
 
+    commentBlog: build.mutation({
+      query(newBlog) {
+        const { id, ...body } = newBlog;
+        return {
+          url: `${id}/comments`,
+          method: "POST",
+          body,
+        };
+      },
+      invalidatesTags: (result, error, { id }) => [{ type: "Blogs", id }],
+    }),
+
     deleteBlog: build.mutation({
       query(id) {
         return {

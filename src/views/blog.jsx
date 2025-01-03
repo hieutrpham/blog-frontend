@@ -1,11 +1,14 @@
 import { useMatch } from "react-router-dom";
 import blogApi from "../reducers/blogReducer";
 import LogOut from "../components/Logout";
+import { useState } from "react";
 
 const BlogView = () => {
   const { data: blogData = [] } = blogApi.useBlogListQuery();
   const [updateBlog] = blogApi.useUpdateBlogMutation();
   const [removeBlog] = blogApi.useDeleteBlogMutation();
+  const [commentBlog] = blogApi.useCommentBlogMutation();
+  const [comment, setComment] = useState("");
   const match = useMatch("blogs/:id");
 
   const blogFound = match
@@ -35,6 +38,24 @@ const BlogView = () => {
     }
   };
 
+  const handleComment = (e) => {
+    e.preventDefault();
+    const newBlog = {
+      id: blogFound.id,
+      title: blogFound.title,
+      author: blogFound.author,
+      url: blogFound.url,
+      likes: blogFound.likes,
+      userId: blogFound.user,
+      comments: comment,
+    };
+    commentBlog(newBlog);
+  };
+
+  const handleOnChange = (e) => {
+    setComment(e.target.value);
+  };
+
   return (
     <>
       <LogOut />
@@ -55,6 +76,14 @@ const BlogView = () => {
         </button>
       ) : null}
       <br />
+      comments
+      <form onSubmit={handleComment}>
+        <input type="text" value={comment} onChange={handleOnChange} />
+        <button type="submit">submit comment</button>
+      </form>
+      {blogFound.comments.map((c, index) => (
+        <li key={index}>{c}</li>
+      ))}
     </>
   );
 };
